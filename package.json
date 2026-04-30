@@ -1,0 +1,22 @@
+{
+  "name": "johnny-decimal-manager",
+  "version": "1.0.0-beta.1",
+  "description": "Johnny.Decimal Manager for Obsidian",
+  "main": "main.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^16.11.29",
+    "@typescript-eslint/eslint-plugin": "^5.29.0",
+    "@typescript-eslint/parser": "^5.29.0",
+    "builtin-modules": "^3.3.0",
+    "esbuild": "0.17.3",
+    "obsidian": "latest",
+    "tslib": "2.4.0",
+    "typescript": "4.7.4"
+  }
+}
