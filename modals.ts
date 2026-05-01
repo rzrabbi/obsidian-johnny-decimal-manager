@@ -1,4 +1,4 @@
-import { App, Modal, Setting, TFolder, Notice } from "obsidian";
+import { App, Modal, Setting, TFolder, Notice, setIcon } from "obsidian";
 import { parseJD, ParsedJD, createJDItem, getAreaPrefix } from "./utils";
 import type JohnnyDecimalPlugin from "./main";
 
@@ -38,8 +38,16 @@ export class JDItemModal extends Modal {
                     this.itemType = value as 'folder' | 'file';
                 }));
 
+        const jdNameFrag = document.createDocumentFragment();
+        jdNameFrag.appendText("JD Number ");
+        const jdHelpSpan = jdNameFrag.createEl("span", { cls: "jd-help-icon" });
+        jdHelpSpan.style.cursor = "help";
+        jdHelpSpan.style.opacity = "0.7";
+        setIcon(jdHelpSpan, "help-circle");
+        jdHelpSpan.setAttribute("aria-label", "The Johnny.Decimal number.\nFormat: Area (10-19), Category (11), or Item (11.01).\nExample: 11.01");
+
         new Setting(contentEl)
-            .setName("JD Number")
+            .setName(jdNameFrag)
             .addText(text => text
                 .setPlaceholder("Enter JD Number")
                 .setValue(this.jdId)
@@ -47,8 +55,16 @@ export class JDItemModal extends Modal {
                     this.jdId = value.trim();
                 }));
 
+        const nameFrag = document.createDocumentFragment();
+        nameFrag.appendText("Name ");
+        const nameHelpSpan = nameFrag.createEl("span", { cls: "jd-help-icon" });
+        nameHelpSpan.style.cursor = "help";
+        nameHelpSpan.style.opacity = "0.7";
+        setIcon(nameHelpSpan, "help-circle");
+        nameHelpSpan.setAttribute("aria-label", "The human-readable name of the item.\nFormat: Any valid folder or file name.\nExample: Tax Returns 2024");
+
         new Setting(contentEl)
-            .setName("Name")
+            .setName(nameFrag)
             .addText(text => text
                 .setPlaceholder("Enter Name")
                 .onChange(value => {
