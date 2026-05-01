@@ -8,18 +8,33 @@ Organize your second brain flawlessly without the friction of manually managing 
 
 While many plugins help you sort files inside Obsidian, they often rely on metadata that doesn't translate to your actual hard drive. This leads to several problems:
 
-*   **Platform Consistency**: Different machines and OS explorers (Windows, Mac, Mobile) often have different default sorting, making your files hard to find outside of Obsidian.
-*   **GitHub & Cloud Portability**: In GitHub or cloud backups, your files are often a jumbled mess unless they are structurally organized.
-*   **AI Readiness**: Modern AI agents work best with organized data. A structured vault reduces the "search hassle" for AI, allowing agents to find your files and provide answers much faster.
+- **Platform Consistency**: Different machines and OS explorers (Windows, Mac, Mobile) often have different default sorting, making your files hard to find outside of Obsidian.
+- **GitHub & Cloud Portability**: In GitHub or cloud backups, your files are often a jumbled mess unless they are structurally organized.
+- **AI Readiness**: Modern AI agents work best with organized data. A structured vault reduces the "search hassle" for AI, allowing agents to find your files and provide answers much faster.
 
 ## ❓ What is Johnny.Decimal?
 
 In short, it’s a way to give everything a permanent "address." You break your life into 10 Areas, and each area into 10 Categories.
 
 **Example:**
-*   **Area 10-19**: Finance
-*   **Category 11**: Tax
-*   **ID 11.01**: Tax Returns 2024
+
+- **Area 10-19**: Finance
+- **Category 11**: Tax
+- **ID 11.01**: Tax Returns 2024
+
+**Visual Folder Hierarchy:**
+
+```text
+10-19 Finance
+  -- 11 Tax
+    -- 11.01 Tax Returns 2024
+    -- 11.02 Receipts
+  -- 12 Banking
+    -- 12.01 Statements
+20-29 Personal
+  -- 21 Health
+    -- 21.01 Medical Records
+```
 
 Instead of "searching" for a file, you "know" exactly where it is based on its number. If you want to learn more, visit the official site: [johnnydecimal.com](https://johnnydecimal.com/)
 
@@ -40,11 +55,12 @@ Instead of "searching" for a file, you "know" exactly where it is based on its n
 4.  **Command Palette**: Run: `Create New Johnny.Decimal Item`.
 
 **The Creation Modal:**
-*   **Type**: Choose Folder or File.
-*   **JD Number**: Enter Area, Category, or Item (e.g., `11.01`).
-*   **Name**: Enter the human-readable name (e.g., `Tax Returns 2024`).
 
-*If parent folders are missing, a secondary modal will elegantly ask you to name them so the entire branch is built at once!*
+- **Type**: Choose Folder or File.
+- **JD Number**: Enter Area, Category, or Item (e.g., `11.01`).
+- **Name**: Enter the human-readable name (e.g., `Tax Returns 2024`).
+
+_If parent folders are missing, a secondary modal will elegantly ask you to name them so the entire branch is built at once!_
 
 ## ⚙️ Settings
 
@@ -63,19 +79,13 @@ Instead of "searching" for a file, you "know" exactly where it is based on its n
 
 ### Option 2: Manual Installation
 
-1.  Download `main.js`, `manifest.json`, and `styles.css` from the [Releases](#) page.
+1.  Download `main.js`, `manifest.json`, and `styles.css` from the [Releases](https://github.com/rzrabbi/obsidian-johnny-decimal-manager/releases) page.
 2.  Place them in your vault's `.obsidian/plugins/obsidian-johnny-decimal-manager/` directory.
 3.  Reload Obsidian and enable.
 
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/rzrabbi/obsidian-johnny-decimal-manager/issues).
-
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
 
 ## 📝 License
 

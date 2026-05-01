@@ -258,6 +258,19 @@ class JDSettingsTab extends PluginSettingTab {
         containerEl.empty();
         containerEl.createEl('h2', { text: 'Johnny.Decimal Manager Settings' });
 
+        const infoEl = containerEl.createEl("div", { cls: "setting-item-description" });
+        infoEl.style.marginBottom = "20px";
+        infoEl.innerHTML = `
+            <p style="margin-top: 0;"><strong>What is Johnny.Decimal?</strong></p>
+            <p>A system to give everything a permanent "address" by breaking your structure into 10 Areas, and each area into 10 Categories.</p>
+            <ul style="margin: 5px 0 10px 20px; padding: 0;">
+                <li><strong>Area (10-19):</strong> Finance</li>
+                <li><strong>Category (11):</strong> Tax</li>
+                <li><strong>ID (11.01):</strong> Tax Returns 2024</li>
+            </ul>
+            <p style="margin-bottom: 0;">Learn more at the official site: <a href="https://johnnydecimal.com/" target="_blank">johnnydecimal.com</a></p>
+        `;
+
         new Setting(containerEl)
             .setName('Clean View')
             .setDesc('Visually hide the JD prefix in the File Explorer.')
