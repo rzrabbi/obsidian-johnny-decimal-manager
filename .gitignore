@@ -6,3 +6,4 @@ documentation.md
 .vscode/
 .idea/
 *.log
+dev.ps1

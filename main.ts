@@ -268,7 +268,6 @@ class JDSettingsTab extends PluginSettingTab {
                 <li><strong>Category (11):</strong> Tax</li>
                 <li><strong>ID (11.01):</strong> Tax Returns 2024</li>
             </ul>
-            <p style="margin-bottom: 0;">Learn more at the official site: <a href="https://johnnydecimal.com/" target="_blank">johnnydecimal.com</a></p>
         `;
 
         new Setting(containerEl)
