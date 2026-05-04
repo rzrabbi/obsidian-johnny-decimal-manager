@@ -38,6 +38,11 @@ In short, it’s a way to give everything a permanent "address." You break your 
 
 Instead of "searching" for a file, you "know" exactly where it is based on its number. If you want to learn more, visit the official site: [johnnydecimal.com](https://johnnydecimal.com/)
 
+---
+
+> [!IMPORTANT]
+> **Disclaimer:** I am not the creator of the Johnny.Decimal system. This plugin is an independent tool designed to simplify, maintain, and implement the Johnny.Decimal workflow within Obsidian. All conceptual credit for the original system belongs to [johnnydecimal.com](https://johnnydecimal.com/).
+
 ## ✨ Features
 
 - **⚡ Smart Cascading Creation:** Just type your target Item ID (e.g., `11.01`). If Area `10-19` or Category `11` are missing, the plugin intelligently detects it and prompts you to create the entire parent hierarchy in one fluid motion.

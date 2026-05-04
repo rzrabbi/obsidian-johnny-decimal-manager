@@ -44,7 +44,9 @@ export class JDItemModal extends Modal {
         jdHelpSpan.style.cursor = "help";
         jdHelpSpan.style.opacity = "0.7";
         setIcon(jdHelpSpan, "help-circle");
-        jdHelpSpan.setAttribute("aria-label", "The Johnny.Decimal number.\nFormat: Area (10-19), Category (11), or Item (11.01).\nExample: 11.01");
+        const jdHelpText = "The Johnny.Decimal number.\nFormat: Area (10-19), Category (11), or Item (11.01).\nExample: 11.01";
+        jdHelpSpan.setAttribute("aria-label", jdHelpText);
+        jdHelpSpan.addEventListener("click", () => new Notice(jdHelpText));
 
         new Setting(contentEl)
             .setName(jdNameFrag)
@@ -61,7 +63,9 @@ export class JDItemModal extends Modal {
         nameHelpSpan.style.cursor = "help";
         nameHelpSpan.style.opacity = "0.7";
         setIcon(nameHelpSpan, "help-circle");
-        nameHelpSpan.setAttribute("aria-label", "The human-readable name of the item.\nFormat: Any valid folder or file name.\nExample: Tax Returns 2024");
+        const nameHelpText = "The human-readable name of the item.\nFormat: Any valid folder or file name.\nExample: Tax Returns 2024";
+        nameHelpSpan.setAttribute("aria-label", nameHelpText);
+        nameHelpSpan.addEventListener("click", () => new Notice(nameHelpText));
 
         new Setting(contentEl)
             .setName(nameFrag)
