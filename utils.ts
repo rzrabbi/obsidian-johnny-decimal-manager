@@ -63,7 +63,7 @@ export function validateVaultName(name: string): string {
         throw new Error("Name cannot be empty, '.' or '..'.");
     }
 
-    if (/[\\/:\*\?"<>\|]/.test(cleaned)) {
+    if (/[\\/:*?"<>|]/.test(cleaned)) {
         throw new Error("Name contains characters that are not safe for file or folder names.");
     }
 
@@ -76,7 +76,7 @@ export function findAreaFolder(app: App, areaPrefix: string): TFolder | null {
     
     for (const folder of root.children) {
         if (folder instanceof TFolder) {
-            const regex = new RegExp(`^(${escapeRegExp(areaPrefix)}|${escapeRegExp(baseStr)})([\\s_\\-]|$)`);
+            const regex = new RegExp(`^(${escapeRegExp(areaPrefix)}|${escapeRegExp(baseStr)})([\\s_-]|$)`);
             if (regex.test(folder.name)) {
                 return folder;
             }
@@ -126,17 +126,17 @@ export async function createJDItem(app: App, parent: TFolder, prefix: string, na
 }
 
 export function extractJDPrefix(folderName: string): string | null {
-    const rangeMatch = folderName.match(/^(\d0)-(\d9)(?=[\s_\-]|$)/);
+    const rangeMatch = folderName.match(/^(\d0)-(\d9)(?=[\s_-]|$)/);
     if (rangeMatch) {
         const start = parseInt(rangeMatch[1], 10);
         const end = parseInt(rangeMatch[2], 10);
         if (end === start + 9) return `${rangeMatch[1]}-${rangeMatch[2]}`;
     }
     
-    const itemMatch = folderName.match(/^(\d{2}\.\d{1,2})(?=[\s_\-]|$)/);
+    const itemMatch = folderName.match(/^(\d{2}\.\d{1,2})(?=[\s_-]|$)/);
     if (itemMatch) return itemMatch[1];
     
-    const singleMatch = folderName.match(/^(\d{2})(?=[\s_\-]|$)/);
+    const singleMatch = folderName.match(/^(\d{2})(?=[\s_-]|$)/);
     if (singleMatch) return singleMatch[1];
 
     return null;

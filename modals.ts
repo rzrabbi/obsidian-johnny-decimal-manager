@@ -48,7 +48,7 @@ export class JDItemModal extends Modal {
         new Setting(contentEl)
             .setName(jdNameFrag)
             .addText(text => text
-                .setPlaceholder("Enter JD Number")
+                .setPlaceholder("Enter JD number")
                 .setValue(this.jdId)
                 .onChange(value => {
                     this.jdId = value.trim();
@@ -58,14 +58,14 @@ export class JDItemModal extends Modal {
         nameFrag.appendText("Name ");
         const nameHelpSpan = nameFrag.createEl("span", { cls: "jd-help-icon" });
         setIcon(nameHelpSpan, "help-circle");
-        const nameHelpText = "The human-readable name of the item.\nFormat: Any valid folder or file name.\nExample: Tax Returns 2024";
+        const nameHelpText = "The human-readable name of the item.\nFormat: any valid folder or file name.\nExample: tax returns 2024";
         nameHelpSpan.setAttribute("aria-label", nameHelpText);
         nameHelpSpan.addEventListener("click", () => new Notice(nameHelpText));
 
         new Setting(contentEl)
             .setName(nameFrag)
             .addText(text => text
-                .setPlaceholder("Enter Name")
+                .setPlaceholder("Enter name")
                 .onChange(value => {
                     this.itemName = value.trim();
                 }));
@@ -100,13 +100,13 @@ export class JDItemModal extends Modal {
 
     async handleCreate() {
         if (!this.jdId || !this.itemName) {
-            showError("Validation Error: Both JD Number and Name fields are required.");
+            showError("Validation error: both JD number and name fields are required.");
             return;
         }
 
         let parsed = parseJD(this.jdId);
         if (!parsed) {
-            showError("Format Error: Please use a standard JD format (e.g., '10-19', '11', or '11.01').");
+            showError("Format error: please use a standard JD format (e.g., '10-19', '11', or '11.01').");
             return;
         }
 
@@ -125,18 +125,18 @@ export class JDItemModal extends Modal {
 
         if (parsed.type === 'area') {
             if (existingAreaFolder) {
-                showError("Conflict Error: This Area folder already exists in the vault.");
+                showError("Conflict error: this area folder already exists in the vault.");
                 return;
             }
             await createJDItem(this.app, vaultRoot, areaPrefixRange, this.itemName, 'folder');
-            new Notice(`Created Area: ${areaPrefixRange} ${this.itemName}`);
+            new Notice(`Created area: ${areaPrefixRange} ${this.itemName}`);
             this.close();
             return;
         }
 
         if (parsed.type === 'category' && parseInt(parsed.categoryPrefix!) % 10 === 0) {
             if (!existingAreaFolder) {
-                showError(`Missing Parent: The Area folder (${areaPrefixRange}) must exist before creating an Area Management category.`);
+                showError(`Missing parent: the area folder (${areaPrefixRange}) must exist before creating an area management category.`);
                 new MissingParentsModal(this.app, this.plugin, parsed, this.itemName, this.itemType, true, false, areaPrefixRange).open();
                 this.close();
                 return;
@@ -152,12 +152,12 @@ export class JDItemModal extends Modal {
 
             const existingCat = findCategoryFolder(existingAreaFolder, parsed.categoryPrefix!);
             if (existingCat) {
-                showError("Conflict Error: This Category folder already exists within the Area.");
+                showError("Conflict error: this category folder already exists within the area.");
                 return;
             }
             
             await createJDItem(this.app, existingAreaFolder, parsed.categoryPrefix!, this.itemName, 'folder');
-            new Notice(`Created Category: ${parsed.categoryPrefix} ${this.itemName}`);
+            new Notice(`Created category: ${parsed.categoryPrefix} ${this.itemName}`);
             this.close();
             return;
         }
@@ -179,12 +179,12 @@ export class JDItemModal extends Modal {
 
             const existingItem = findItem(existingCatFolder, parsed.itemId!);
             if (existingItem) {
-                showError("Conflict Error: This Item ID already exists within the Category.");
+                showError("Conflict error: this item ID already exists within the category.");
                 return;
             }
 
             await createJDItem(this.app, existingCatFolder, parsed.itemId!, this.itemName, this.itemType);
-            new Notice(`Created Item: ${parsed.itemId} ${this.itemName}`);
+            new Notice(`Created item: ${parsed.itemId} ${this.itemName}`);
             this.close();
         }
     }
@@ -253,11 +253,11 @@ export class MissingParentsModal extends Modal {
                         if (this.isCreating) return;
 
                         if (this.missingArea && !this.areaName) {
-                            showError("Validation Error: Please provide a valid name for the missing Area folder.");
+                            showError("Validation error: please provide a valid name for the missing area folder.");
                             return;
                         }
                         if (this.missingCategory && !this.categoryName) {
-                            showError("Validation Error: Please provide a valid name for the missing Category folder.");
+                            showError("Validation error: please provide a valid name for the missing category folder.");
                             return;
                         }
 
@@ -282,7 +282,11 @@ export class MissingParentsModal extends Modal {
         let currentArea = this.existingAreaFolder;
         
         if (this.missingArea) {
-            currentArea = await createJDItem(this.app, root, this.areaPrefix, this.areaName, 'folder') as TFolder;
+            const createdArea = await createJDItem(this.app, root, this.areaPrefix, this.areaName, 'folder');
+            if (!(createdArea instanceof TFolder)) {
+                throw new Error("Failed to create the area folder.");
+            }
+            currentArea = createdArea;
         }
 
         if (this.parsed.type === 'area') {
@@ -295,7 +299,11 @@ export class MissingParentsModal extends Modal {
             await createJDItem(this.app, currentArea, this.parsed.categoryPrefix!, this.finalItemName, 'folder');
             return;
         } else if (this.missingCategory && currentArea) {
-            currentCategory = await createJDItem(this.app, currentArea, this.parsed.categoryPrefix!, this.categoryName, 'folder') as TFolder;
+            const createdCategory = await createJDItem(this.app, currentArea, this.parsed.categoryPrefix!, this.categoryName, 'folder');
+            if (!(createdCategory instanceof TFolder)) {
+                throw new Error("Failed to create the category folder.");
+            }
+            currentCategory = createdCategory;
         } else if (currentArea) {
             currentCategory = findCategoryFolder(currentArea, this.parsed.categoryPrefix!);
         }

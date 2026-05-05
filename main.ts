@@ -44,12 +44,12 @@ export default class JohnnyDecimalPlugin extends Plugin {
             }
         });
 
-        // 2. Ribbon Icons
-        this.ribbonCreateEl = this.addRibbonIcon('folder-plus', 'Create JD Item', () => {
+        // 2. Ribbon icons
+        this.ribbonCreateEl = this.addRibbonIcon('folder-plus', 'Create JD item', () => {
             new JDItemModal(this.app, this).open();
         });
         
-        this.ribbonToggleEl = this.addRibbonIcon('eye', 'Toggle JD Clean View', async () => {
+        this.ribbonToggleEl = this.addRibbonIcon('eye', 'Toggle JD clean view', async () => {
             this.settings.cleanViewEnabled = !this.settings.cleanViewEnabled;
             await this.saveSettings();
             new Notice(this.settings.cleanViewEnabled ? "JD clean view: on" : "JD clean view: off");
@@ -57,16 +57,16 @@ export default class JohnnyDecimalPlugin extends Plugin {
         
         this.updateRibbonIcons();
 
-        // 3. Settings Tab
+        // 3. Settings tab
         this.addSettingTab(new JDSettingsTab(this.app, this));
 
-        // 4. File Context Menu (Right Click)
+        // 4. File context menu (right click)
         this.registerEvent(
             this.app.workspace.on("file-menu", (menu, file) => {
                 if (file instanceof TFolder) {
                     menu.addItem((item) => {
                         item
-                            .setTitle("Create JD Item inside")
+                            .setTitle("Create JD item inside")
                             .setIcon("folder-plus")
                             .onClick(() => {
                                 const nextJd = getNextAvailableJD(file);
@@ -77,7 +77,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
             })
         );
 
-        // 5. Native "New Folder" Hijack
+        // 5. Native "New folder" hijack
         this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
             if (this.settings.replaceNativeNewFolder) {
                 const target = evt.target as HTMLElement;
@@ -112,7 +112,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
         this.updateCleanViewClass();
         this.updateRibbonIcons();
         
-        // Re-process all nodes when settings change
+        // Re-process all nodes when settings change.
         this.stopObserver();
         this.startObserver();
     }
@@ -194,8 +194,8 @@ export default class JohnnyDecimalPlugin extends Plugin {
         let dynamicPrefix = "";
         let rest = text;
 
-        // Check if it's an Area range "10-19 "
-        const rangeMatch = text.match(/^(\d0)-(\d9)([\s_\-])/);
+        // Check if it's an area range "10-19 ".
+        const rangeMatch = text.match(/^(\d0)-(\d9)([\s_-])/);
         if (rangeMatch && parseInt(rangeMatch[1]) + 9 === parseInt(rangeMatch[2])) {
             originalPrefix = rangeMatch[0];
             const base = parseInt(rangeMatch[1]);
@@ -205,8 +205,8 @@ export default class JohnnyDecimalPlugin extends Plugin {
         } 
         
         if (!originalPrefix) {
-            // Check if it's an Area single "10 ", Category "11 ", or Item "11.01 "
-            const singleMatch = text.match(/^(\d{2}(\.\d{1,2})?)([\s_\-])/);
+            // Check if it's an area single "10 ", category "11 ", or item "11.01 ".
+            const singleMatch = text.match(/^(\d{2}(\.\d{1,2})?)([\s_-])/);
             if (singleMatch) {
                 originalPrefix = singleMatch[0];
                 const numStr = singleMatch[1];
@@ -216,12 +216,12 @@ export default class JohnnyDecimalPlugin extends Plugin {
                 const dataPath = titleNode?.getAttribute('data-path') || "";
                 const isRoot = dataPath !== "" && !dataPath.includes('/');
 
-                // If it's a multiple of 10 without a decimal AND it's at the vault root, it's an Area
+                // If it's a multiple of 10 without a decimal and it's at the vault root, it's an area.
                 if (/^\d0$/.test(numStr) && isRoot) {
                     const base = parseInt(numStr);
                     dynamicPrefix = this.settings.areaNamingStyle === 'range' ? `${base}-${base+9}${separator}` : originalPrefix;
                 } else {
-                    // Category or Item
+                    // Category or item.
                     dynamicPrefix = originalPrefix; 
                 }
                 rest = text.substring(originalPrefix.length);
@@ -260,9 +260,9 @@ class JDSettingsTab extends PluginSettingTab {
         infoEl.createEl("p", { text: "Johnny.Decimal gives everything a permanent address by breaking your structure into 10 areas, and each area into 10 categories." });
 
         const listEl = infoEl.createEl("ul");
-        listEl.createEl("li", { text: "Area 10-19: Finance" });
-        listEl.createEl("li", { text: "Category 11: Tax" });
-        listEl.createEl("li", { text: "ID 11.01: Tax Returns 2024" });
+        listEl.createEl("li", { text: "Area 10-19: finance" });
+        listEl.createEl("li", { text: "Category 11: tax" });
+        listEl.createEl("li", { text: "ID 11.01: tax returns 2024" });
 
         new Setting(containerEl)
             .setName('Clean view')
