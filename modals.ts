@@ -1,12 +1,10 @@
 import { App, Modal, Setting, TFolder, Notice, setIcon } from "obsidian";
-import { parseJD, ParsedJD, createJDItem, getAreaPrefix } from "./utils";
+import { parseJD, ParsedJD, createJDItem, getAreaPrefix, findAreaFolder, findCategoryFolder, findItem } from "./utils";
 import type JohnnyDecimalPlugin from "./main";
 
 function showError(msg: string) {
     const frag = document.createDocumentFragment();
-    const span = frag.createEl('span', { text: msg });
-    span.style.color = "var(--text-error)";
-    span.style.fontWeight = "500";
+    frag.createEl('span', { text: msg, cls: 'jd-error-notice' });
     new Notice(frag);
 }
 
@@ -15,6 +13,7 @@ export class JDItemModal extends Modal {
     jdId: string = "";
     itemName: string = "";
     itemType: 'folder' | 'file' = 'folder';
+    private isCreating = false;
 
     constructor(app: App, plugin: JohnnyDecimalPlugin, defaultJdId: string = "") {
         super(app);
@@ -26,7 +25,7 @@ export class JDItemModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
         
-        contentEl.createEl("h2", { text: "Create New Johnny.Decimal Item" });
+        contentEl.createEl("h2", { text: "Create new Johnny.Decimal item" });
 
         new Setting(contentEl)
             .setName("Type")
@@ -39,10 +38,8 @@ export class JDItemModal extends Modal {
                 }));
 
         const jdNameFrag = document.createDocumentFragment();
-        jdNameFrag.appendText("JD Number ");
+        jdNameFrag.appendText("JD number ");
         const jdHelpSpan = jdNameFrag.createEl("span", { cls: "jd-help-icon" });
-        jdHelpSpan.style.cursor = "help";
-        jdHelpSpan.style.opacity = "0.7";
         setIcon(jdHelpSpan, "help-circle");
         const jdHelpText = "The Johnny.Decimal number.\nFormat: Area (10-19), Category (11), or Item (11.01).\nExample: 11.01";
         jdHelpSpan.setAttribute("aria-label", jdHelpText);
@@ -60,8 +57,6 @@ export class JDItemModal extends Modal {
         const nameFrag = document.createDocumentFragment();
         nameFrag.appendText("Name ");
         const nameHelpSpan = nameFrag.createEl("span", { cls: "jd-help-icon" });
-        nameHelpSpan.style.cursor = "help";
-        nameHelpSpan.style.opacity = "0.7";
         setIcon(nameHelpSpan, "help-circle");
         const nameHelpText = "The human-readable name of the item.\nFormat: Any valid folder or file name.\nExample: Tax Returns 2024";
         nameHelpSpan.setAttribute("aria-label", nameHelpText);
@@ -76,12 +71,26 @@ export class JDItemModal extends Modal {
                 }));
 
         new Setting(contentEl)
-            .addButton(btn => btn
-                .setButtonText("Create")
-                .setCta()
-                .onClick(() => {
-                    this.handleCreate();
-                }));
+            .addButton(btn => {
+                btn
+                    .setButtonText("Create")
+                    .setCta()
+                    .onClick(async () => {
+                        if (this.isCreating) return;
+
+                        this.isCreating = true;
+                        btn.setDisabled(true);
+
+                        try {
+                            await this.handleCreate();
+                        } catch (error) {
+                            showError(error instanceof Error ? error.message : "Failed to create JD item.");
+                        } finally {
+                            this.isCreating = false;
+                            btn.setDisabled(false);
+                        }
+                    });
+            });
     }
 
     onClose() {
@@ -95,7 +104,7 @@ export class JDItemModal extends Modal {
             return;
         }
 
-        const parsed = parseJD(this.jdId);
+        let parsed = parseJD(this.jdId);
         if (!parsed) {
             showError("Format Error: Please use a standard JD format (e.g., '10-19', '11', or '11.01').");
             return;
@@ -103,9 +112,16 @@ export class JDItemModal extends Modal {
 
         const vaultRoot = this.app.vault.getRoot();
         const areaPrefixRange = getAreaPrefix(parsed.logicalAreaBase);
-        const areaRegex = new RegExp(`^${areaPrefixRange}(?:[\\s_\\-]|$)`);
-        
-        let existingAreaFolder = vaultRoot.children.find(c => c instanceof TFolder && areaRegex.test(c.name)) as TFolder | undefined;
+        let existingAreaFolder = findAreaFolder(this.app, areaPrefixRange) ?? undefined;
+
+        if (parsed.type === 'area' && /^\d0$/.test(this.jdId.trim()) && existingAreaFolder) {
+            parsed = {
+                type: 'category',
+                logicalAreaBase: parsed.logicalAreaBase,
+                categoryPrefix: this.jdId.trim(),
+                itemId: null
+            };
+        }
 
         if (parsed.type === 'area') {
             if (existingAreaFolder) {
@@ -134,8 +150,7 @@ export class JDItemModal extends Modal {
                 return;
             }
 
-            const catRegex = new RegExp(`^${parsed.categoryPrefix}(?:[\\s_\\-]|$)`);
-            const existingCat = existingAreaFolder.children.find(c => c instanceof TFolder && catRegex.test(c.name)) as TFolder | undefined;
+            const existingCat = findCategoryFolder(existingAreaFolder, parsed.categoryPrefix!);
             if (existingCat) {
                 showError("Conflict Error: This Category folder already exists within the Area.");
                 return;
@@ -154,8 +169,7 @@ export class JDItemModal extends Modal {
                 return;
             }
 
-            const catRegex = new RegExp(`^${parsed.categoryPrefix}(?:[\\s_\\-]|$)`);
-            const existingCatFolder = existingAreaFolder.children.find(c => c instanceof TFolder && catRegex.test(c.name)) as TFolder | undefined;
+            const existingCatFolder = findCategoryFolder(existingAreaFolder, parsed.categoryPrefix!) ?? undefined;
 
             if (!existingCatFolder) {
                 new MissingParentsModal(this.app, this.plugin, parsed, this.itemName, this.itemType, false, true, areaPrefixRange, existingAreaFolder).open();
@@ -163,8 +177,7 @@ export class JDItemModal extends Modal {
                 return;
             }
 
-            const itemRegex = new RegExp(`^${parsed.itemId}(?:[\\s_\\-]|$)`);
-            const existingItem = existingCatFolder.children.find(c => itemRegex.test(c.name));
+            const existingItem = findItem(existingCatFolder, parsed.itemId!);
             if (existingItem) {
                 showError("Conflict Error: This Item ID already exists within the Category.");
                 return;
@@ -189,6 +202,7 @@ export class MissingParentsModal extends Modal {
 
     areaName: string = "";
     categoryName: string = "";
+    private isCreating = false;
 
     constructor(
         app: App, plugin: JohnnyDecimalPlugin, parsed: ParsedJD,
@@ -211,12 +225,12 @@ export class MissingParentsModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
         
-        contentEl.createEl("h2", { text: "Missing Parent Folders" });
-        contentEl.createEl("p", { text: "The required Area or Category folders do not exist. Please provide names for them." });
+        contentEl.createEl("h2", { text: "Missing parent folders" });
+        contentEl.createEl("p", { text: "The required area or category folders do not exist. Please provide names for them." });
 
         if (this.missingArea) {
             new Setting(contentEl)
-                .setName(`Area Name [${this.areaPrefix}]`)
+                .setName(`Area name [${this.areaPrefix}]`)
                 .addText(text => text
                     .setPlaceholder("Enter area name")
                     .onChange(value => this.areaName = value.trim()));
@@ -224,29 +238,43 @@ export class MissingParentsModal extends Modal {
 
         if (this.missingCategory) {
             new Setting(contentEl)
-                .setName(`Category Name [${this.parsed.categoryPrefix}]`)
+                .setName(`Category name [${this.parsed.categoryPrefix}]`)
                 .addText(text => text
                     .setPlaceholder("Enter category name")
                     .onChange(value => this.categoryName = value.trim()));
         }
 
         new Setting(contentEl)
-            .addButton(btn => btn
-                .setButtonText("Create All")
-                .setCta()
-                .onClick(async () => {
-                    if (this.missingArea && !this.areaName) {
-                        showError("Validation Error: Please provide a valid name for the missing Area folder.");
-                        return;
-                    }
-                    if (this.missingCategory && !this.categoryName) {
-                        showError("Validation Error: Please provide a valid name for the missing Category folder.");
-                        return;
-                    }
-                    
-                    await this.createAll();
-                    this.close();
-                }));
+            .addButton(btn => {
+                btn
+                    .setButtonText("Create all")
+                    .setCta()
+                    .onClick(async () => {
+                        if (this.isCreating) return;
+
+                        if (this.missingArea && !this.areaName) {
+                            showError("Validation Error: Please provide a valid name for the missing Area folder.");
+                            return;
+                        }
+                        if (this.missingCategory && !this.categoryName) {
+                            showError("Validation Error: Please provide a valid name for the missing Category folder.");
+                            return;
+                        }
+
+                        this.isCreating = true;
+                        btn.setDisabled(true);
+
+                        try {
+                            await this.createAll();
+                            this.close();
+                        } catch (error) {
+                            showError(error instanceof Error ? error.message : "Failed to create JD folders.");
+                        } finally {
+                            this.isCreating = false;
+                            btn.setDisabled(false);
+                        }
+                    });
+            });
     }
 
     async createAll() {
@@ -269,8 +297,7 @@ export class MissingParentsModal extends Modal {
         } else if (this.missingCategory && currentArea) {
             currentCategory = await createJDItem(this.app, currentArea, this.parsed.categoryPrefix!, this.categoryName, 'folder') as TFolder;
         } else if (currentArea) {
-            const catRegex = new RegExp(`^${this.parsed.categoryPrefix}(?:[\\s_\\-]|$)`);
-            currentCategory = currentArea.children.find(c => c instanceof TFolder && catRegex.test(c.name)) as TFolder | null;
+            currentCategory = findCategoryFolder(currentArea, this.parsed.categoryPrefix!);
         }
 
         if (this.parsed.type === 'item' && currentCategory) {
