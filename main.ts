@@ -25,11 +25,10 @@ export default class JohnnyDecimalPlugin extends Plugin {
     async onload() {
         await this.loadSettings();
 
-        // 1. Commands & Hotkeys
+        // 1. Commands
         this.addCommand({
             id: 'create-jd-item',
-            name: 'Create New Johnny.Decimal Item',
-            hotkeys: [{ modifiers: ["Mod", "Shift"], key: "j" }],
+            name: 'Create new item',
             callback: () => {
                 new JDItemModal(this.app, this).open();
             }
@@ -37,12 +36,11 @@ export default class JohnnyDecimalPlugin extends Plugin {
 
         this.addCommand({
             id: 'toggle-clean-view',
-            name: 'Toggle Clean View',
-            hotkeys: [{ modifiers: ["Mod", "Shift"], key: "h" }],
+            name: 'Toggle clean view',
             callback: async () => {
                 this.settings.cleanViewEnabled = !this.settings.cleanViewEnabled;
                 await this.saveSettings();
-                new Notice(this.settings.cleanViewEnabled ? "JD Clean View: ON" : "JD Clean View: OFF");
+                new Notice(this.settings.cleanViewEnabled ? "JD clean view: on" : "JD clean view: off");
             }
         });
 
@@ -54,7 +52,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
         this.ribbonToggleEl = this.addRibbonIcon('eye', 'Toggle JD Clean View', async () => {
             this.settings.cleanViewEnabled = !this.settings.cleanViewEnabled;
             await this.saveSettings();
-            new Notice(this.settings.cleanViewEnabled ? "JD Clean View: ON" : "JD Clean View: OFF");
+            new Notice(this.settings.cleanViewEnabled ? "JD clean view: on" : "JD clean view: off");
         });
         
         this.updateRibbonIcons();
@@ -92,9 +90,11 @@ export default class JohnnyDecimalPlugin extends Plugin {
             }
         }, { capture: true });
 
-        // Start systems
-        this.startObserver();
         this.updateCleanViewClass();
+
+        this.app.workspace.onLayoutReady(() => {
+            this.startObserver();
+        });
     }
 
     onunload() {
@@ -119,8 +119,8 @@ export default class JohnnyDecimalPlugin extends Plugin {
 
     updateRibbonIcons() {
         if (this.ribbonCreateEl && this.ribbonToggleEl) {
-            this.ribbonCreateEl.style.display = this.settings.showRibbonIcons ? 'flex' : 'none';
-            this.ribbonToggleEl.style.display = this.settings.showRibbonIcons ? 'flex' : 'none';
+            this.ribbonCreateEl.toggleClass('jd-hidden', !this.settings.showRibbonIcons);
+            this.ribbonToggleEl.toggleClass('jd-hidden', !this.settings.showRibbonIcons);
         }
     }
 
@@ -256,23 +256,17 @@ class JDSettingsTab extends PluginSettingTab {
         const { containerEl } = this;
 
         containerEl.empty();
-        containerEl.createEl('h2', { text: 'Johnny.Decimal Manager Settings' });
+        const infoEl = containerEl.createDiv({ cls: "jd-settings-info setting-item-description" });
+        infoEl.createEl("p", { text: "Johnny.Decimal gives everything a permanent address by breaking your structure into 10 areas, and each area into 10 categories." });
 
-        const infoEl = containerEl.createEl("div", { cls: "setting-item-description" });
-        infoEl.style.marginBottom = "20px";
-        infoEl.innerHTML = `
-            <p style="margin-top: 0;"><strong>What is Johnny.Decimal?</strong></p>
-            <p>A system to give everything a permanent "address" by breaking your structure into 10 Areas, and each area into 10 Categories.</p>
-            <ul style="margin: 5px 0 10px 20px; padding: 0;">
-                <li><strong>Area (10-19):</strong> Finance</li>
-                <li><strong>Category (11):</strong> Tax</li>
-                <li><strong>ID (11.01):</strong> Tax Returns 2024</li>
-            </ul>
-        `;
+        const listEl = infoEl.createEl("ul");
+        listEl.createEl("li", { text: "Area 10-19: Finance" });
+        listEl.createEl("li", { text: "Category 11: Tax" });
+        listEl.createEl("li", { text: "ID 11.01: Tax Returns 2024" });
 
         new Setting(containerEl)
-            .setName('Clean View')
-            .setDesc('Visually hide the JD prefix in the File Explorer.')
+            .setName('Clean view')
+            .setDesc('Visually hide the JD prefix in the file explorer.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.cleanViewEnabled)
                 .onChange(async (value) => {
@@ -281,8 +275,8 @@ class JDSettingsTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Area Naming Style')
-            .setDesc('Choose how Area folders should be formatted and displayed.')
+            .setName('Area naming style')
+            .setDesc('Choose how area folders should be formatted and displayed.')
             .addDropdown(drop => drop
                 .addOption('range', 'Range')
                 .addOption('single', 'Single')
@@ -293,7 +287,7 @@ class JDSettingsTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show Ribbon Icons')
+            .setName('Show ribbon icons')
             .setDesc('Display the quick-action icons in the left sidebar.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showRibbonIcons)
@@ -303,8 +297,8 @@ class JDSettingsTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Replace Native "New Folder" Button')
-            .setDesc('Diverts the default Obsidian File Explorer "New folder" button to open the Johnny.Decimal creation modal instead.')
+            .setName('Replace native "New folder" button')
+            .setDesc('Diverts the default Obsidian file explorer "New folder" button to open the Johnny.Decimal creation modal instead.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.replaceNativeNewFolder)
                 .onChange(async (value) => {

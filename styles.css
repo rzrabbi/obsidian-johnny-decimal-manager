@@ -2,3 +2,30 @@
 body.jd-clean-view-active .jd-prefix-mask {
     display: none;
 }
+
+.jd-hidden {
+    display: none;
+}
+
+.jd-settings-info {
+    margin-bottom: 20px;
+}
+
+.jd-settings-info p {
+    margin-top: 0;
+}
+
+.jd-settings-info ul {
+    margin: 5px 0 10px 20px;
+    padding: 0;
+}
+
+.jd-help-icon {
+    cursor: help;
+    opacity: 0.7;
+}
+
+.jd-error-notice {
+    color: var(--text-error);
+    font-weight: 500;
+}

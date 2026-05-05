@@ -25,15 +25,16 @@ In short, it’s a way to give everything a permanent "address." You break your 
 **Visual Folder Hierarchy:**
 
 ```text
-10-19 Finance
-  -- 11 Tax
-    -- 11.01 Tax Returns 2024
-    -- 11.02 Receipts
-  -- 12 Banking
-    -- 12.01 Statements
-20-29 Personal
-  -- 21 Health
-    -- 21.01 Medical Records
+root/
+├── 10-19 Finance/
+│   ├── 11 Tax/
+│   │   ├── 11.01 Tax Returns 2024.md
+│   │   └── 11.02 Receipts.md
+│   └── 12 Banking/
+│       └── 12.01 Statements.md
+└── 20-29 Personal/
+    └── 21 Health/
+        └── 21.01 Medical Records.md
 ```
 
 Instead of "searching" for a file, you "know" exactly where it is based on its number. If you want to learn more, visit the official site: [johnnydecimal.com](https://johnnydecimal.com/)
@@ -47,17 +48,17 @@ Instead of "searching" for a file, you "know" exactly where it is based on its n
 
 - **⚡ Smart Cascading Creation:** Just type your target Item ID (e.g., `11.01`). If Area `10-19` or Category `11` are missing, the plugin intelligently detects it and prompts you to create the entire parent hierarchy in one fluid motion.
 - **🔢 Intelligent ID Suggestions:** Right-click any folder to create a new item inside—the plugin automatically scans the contents and pre-fills the modal with the next available JD number (e.g., if `11.01` exists, it suggests `11.02`).
-- **🖱️ Native Integration & Quick Access:** Access the creator instantly via the left-side Ribbon Icons, the dedicated `Ctrl/Cmd + Shift + J` Hotkey, or simply right-click any folder and select "Create JD Item inside".
-- **👁️ Clean View (Non-Destructive):** Love the organization but hate the numbers? Toggle "Clean View" (Hotkey: `Ctrl/Cmd + Shift + H`) to visually hide the `11.01 ` prefix in Obsidian's File Explorer. Your actual folder names on your hard drive remain untouched.
+- **🖱️ Native Integration & Quick Access:** Access the creator instantly via the left-side Ribbon Icons, the command palette, or simply right-click any folder and select "Create JD Item inside".
+- **👁️ Clean View (Non-Destructive):** Love the organization but hate the numbers? Toggle "Clean View" from the command palette to visually hide the `11.01 ` prefix in Obsidian's File Explorer. Your actual folder names on your hard drive remain untouched.
 - **🎨 Dynamic Area Formatting:** Prefer Areas to display as a single number (`10 Finance`) instead of a range (`10-19 Finance`)? Change this in settings. The plugin dynamically reformats existing folders visually while preserving standard compliance on disk.
 - **🛡️ Duplicate Prevention:** Built-in safeguards actively scan for existing folders to prevent duplicate numbers.
 
 ## 🚀 Usage
 
 1.  **Left Ribbon Menu**: Click the standard `folder-plus` icon.
-2.  **Hotkey**: Press `Ctrl/Cmd + Shift + J`.
+2.  **Command Palette**: Run: `Create new item`.
 3.  **Right Click Context Menu**: Right-click any folder and select "Create JD Item inside".
-4.  **Command Palette**: Run: `Create New Johnny.Decimal Item`.
+4.  **Hotkeys**: Assign your own shortcuts in Obsidian's Hotkeys settings if you want keyboard access.
 
 **The Creation Modal:**
 
@@ -76,16 +77,22 @@ _If parent folders are missing, a secondary modal will elegantly ask you to name
 
 ## 📦 Installation
 
-### Option 1: Obsidian BRAT (Recommended)
+<!-- ### Option 1: Community plugins
+
+1.  Open Obsidian Settings.
+2.  Go to Community plugins and browse for "Johnny.Decimal Manager".
+3.  Install and enable the plugin. -->
+
+### Option 1: Obsidian BRAT
 
 1.  Install the [BRAT](https://github.com/TfTHacker/obsidian42-brat) plugin.
 2.  Open BRAT settings, click "Add Beta plugin".
-3.  Enter the repository URL: `yourusername/obsidian-johnny-decimal-manager`.
+3.  Enter the repository URL: `rzrabbi/obsidian-johnny-decimal-manager`.
 
 ### Option 2: Manual Installation
 
 1.  Download `main.js`, `manifest.json`, and `styles.css` from the [Releases](https://github.com/rzrabbi/obsidian-johnny-decimal-manager/releases) page.
-2.  Place them in your vault's `.obsidian/plugins/obsidian-johnny-decimal-manager/` directory.
+2.  Place them in your vault's `.obsidian/plugins/johnny-decimal-manager/` directory.
 3.  Reload Obsidian and enable.
 
 ## 🤝 Contributing

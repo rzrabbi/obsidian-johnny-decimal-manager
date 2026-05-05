@@ -11,9 +11,13 @@ export function parseJD(jdId: string): ParsedJD | null {
     const cleaned = jdId.trim();
     
     // Check if it's explicitly an area: "10-19"
-    const rangeMatch = cleaned.match(/^(\d)0-\d9$/);
+    const rangeMatch = cleaned.match(/^(\d0)-(\d9)$/);
     if (rangeMatch) {
-        return { type: 'area', logicalAreaBase: parseInt(rangeMatch[1] + "0", 10), categoryPrefix: null, itemId: null };
+        const start = parseInt(rangeMatch[1], 10);
+        const end = parseInt(rangeMatch[2], 10);
+        if (end !== start + 9) return null;
+
+        return { type: 'area', logicalAreaBase: start, categoryPrefix: null, itemId: null };
     }
 
     // Check if it's a single area: "10", "20"
@@ -27,7 +31,8 @@ export function parseJD(jdId: string): ParsedJD | null {
     if (itemMatch) {
         const cat = itemMatch[1];
         const base = parseInt(cat[0] + "0", 10);
-        return { type: 'item', logicalAreaBase: base, categoryPrefix: cat, itemId: cleaned };
+        const itemId = `${cat}.${itemMatch[2].padStart(2, '0')}`;
+        return { type: 'item', logicalAreaBase: base, categoryPrefix: cat, itemId };
     }
 
     // Check if it's a category: "11", "12"
@@ -47,13 +52,31 @@ export function getAreaPrefix(logicalAreaBase: number): string {
     return `${start}-${end}`;
 }
 
+export function escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+export function validateVaultName(name: string): string {
+    const cleaned = name.trim();
+
+    if (!cleaned || cleaned === "." || cleaned === "..") {
+        throw new Error("Name cannot be empty, '.' or '..'.");
+    }
+
+    if (/[\\/:\*\?"<>\|]/.test(cleaned)) {
+        throw new Error("Name contains characters that are not safe for file or folder names.");
+    }
+
+    return cleaned;
+}
+
 export function findAreaFolder(app: App, areaPrefix: string): TFolder | null {
     const root = app.vault.getRoot();
     const baseStr = areaPrefix.substring(0, 2); // e.g., "10"
     
     for (const folder of root.children) {
         if (folder instanceof TFolder) {
-            const regex = new RegExp(`^(${areaPrefix}|${baseStr})([\\s_\\-]|$)`);
+            const regex = new RegExp(`^(${escapeRegExp(areaPrefix)}|${escapeRegExp(baseStr)})([\\s_\\-]|$)`);
             if (regex.test(folder.name)) {
                 return folder;
             }
@@ -65,7 +88,7 @@ export function findAreaFolder(app: App, areaPrefix: string): TFolder | null {
 export function findCategoryFolder(areaFolder: TFolder, categoryPrefix: string): TFolder | null {
     for (const folder of areaFolder.children) {
         if (folder instanceof TFolder) {
-            const regex = new RegExp(`^${categoryPrefix}([^0-9]|$)`);
+            const regex = new RegExp(`^${escapeRegExp(categoryPrefix)}([^0-9]|$)`);
             if (regex.test(folder.name)) {
                 return folder;
             }
@@ -76,8 +99,7 @@ export function findCategoryFolder(areaFolder: TFolder, categoryPrefix: string):
 
 export function findItem(parent: TFolder, itemId: string): TAbstractFile | null {
     for (const file of parent.children) {
-        const escapedId = itemId.replace(/\./g, '\\.');
-        const regex = new RegExp(`^${escapedId}([^0-9]|$)`);
+        const regex = new RegExp(`^${escapeRegExp(itemId)}([^0-9]|$)`);
         if (regex.test(file.name)) {
             return file;
         }
@@ -85,30 +107,36 @@ export function findItem(parent: TFolder, itemId: string): TAbstractFile | null 
     return null;
 }
 
-export async function createJDItem(app: App, parent: TFolder, prefix: string, name: string, type: 'folder' | 'file'): Promise<TFolder | void> {
-    const itemName = name ? `${prefix} ${name}` : prefix;
+export async function createJDItem(app: App, parent: TFolder, prefix: string, name: string, type: 'folder' | 'file'): Promise<TAbstractFile> {
+    const safeName = name ? validateVaultName(name) : "";
+    const itemName = safeName ? `${prefix} ${safeName}` : prefix;
     if (type === 'folder') {
         const path = normalizePath(`${parent.path}/${itemName}`);
-        if (!app.vault.getAbstractFileByPath(path)) {
-            return await app.vault.createFolder(path) as TFolder;
-        }
-        return app.vault.getAbstractFileByPath(path) as TFolder;
+        const existing = app.vault.getAbstractFileByPath(path);
+        if (existing) return existing;
+
+        return await app.vault.createFolder(path);
     } else {
         const path = normalizePath(`${parent.path}/${itemName}.md`);
-        if (!app.vault.getAbstractFileByPath(path)) {
-            await app.vault.create(path, '');
-        }
+        const existing = app.vault.getAbstractFileByPath(path);
+        if (existing) return existing;
+
+        return await app.vault.create(path, '');
     }
 }
 
 export function extractJDPrefix(folderName: string): string | null {
-    const rangeMatch = folderName.match(/^(\d0-\d9)/);
-    if (rangeMatch) return rangeMatch[1];
+    const rangeMatch = folderName.match(/^(\d0)-(\d9)(?=[\s_\-]|$)/);
+    if (rangeMatch) {
+        const start = parseInt(rangeMatch[1], 10);
+        const end = parseInt(rangeMatch[2], 10);
+        if (end === start + 9) return `${rangeMatch[1]}-${rangeMatch[2]}`;
+    }
     
-    const itemMatch = folderName.match(/^(\d{2}\.\d{1,2})/);
+    const itemMatch = folderName.match(/^(\d{2}\.\d{1,2})(?=[\s_\-]|$)/);
     if (itemMatch) return itemMatch[1];
     
-    const singleMatch = folderName.match(/^(\d{2})/);
+    const singleMatch = folderName.match(/^(\d{2})(?=[\s_\-]|$)/);
     if (singleMatch) return singleMatch[1];
 
     return null;
@@ -180,6 +208,8 @@ export function getNextAvailableJD(folder: TFolder): string | null {
         }
         
         const nextItem = maxItem + 1;
+        if (nextItem > 99) return null;
+
         return `${parsedFolder.categoryPrefix}.${nextItem.toString().padStart(2, '0')}`;
     }
 
