@@ -45,11 +45,11 @@ export default class JohnnyDecimalPlugin extends Plugin {
         });
 
         // 2. Ribbon icons
-        this.ribbonCreateEl = this.addRibbonIcon('folder-plus', 'Create JD item', () => {
+        this.ribbonCreateEl = this.addRibbonIcon('folder-plus', 'Create jd item', () => {
             new JDItemModal(this.app, this).open();
         });
         
-        this.ribbonToggleEl = this.addRibbonIcon('eye', 'Toggle JD clean view', async () => {
+        this.ribbonToggleEl = this.addRibbonIcon('eye', 'Toggle jd clean view', async () => {
             this.settings.cleanViewEnabled = !this.settings.cleanViewEnabled;
             await this.saveSettings();
             new Notice(this.settings.cleanViewEnabled ? "JD clean view: on" : "JD clean view: off");
@@ -66,7 +66,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
                 if (file instanceof TFolder) {
                     menu.addItem((item) => {
                         item
-                            .setTitle("Create JD item inside")
+                            .setTitle("Create jd item inside")
                             .setIcon("folder-plus")
                             .onClick(() => {
                                 const nextJd = getNextAvailableJD(file);
@@ -78,7 +78,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
         );
 
         // 5. Native "New folder" hijack
-        this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
+        this.registerDomEvent(activeDocument, 'click', (evt: MouseEvent) => {
             if (this.settings.replaceNativeNewFolder) {
                 const target = evt.target as HTMLElement;
                 const btn = target.closest('.nav-action-button[aria-label="New folder"]');
@@ -99,11 +99,12 @@ export default class JohnnyDecimalPlugin extends Plugin {
 
     onunload() {
         this.stopObserver();
-        document.body.classList.remove("jd-clean-view-active");
+        activeDocument.body.classList.remove("jd-clean-view-active");
     }
 
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const loadedData = (await this.loadData()) as Partial<JDSettings> | null;
+        this.settings = { ...DEFAULT_SETTINGS, ...loadedData };
     }
 
     async saveSettings() {
@@ -126,10 +127,10 @@ export default class JohnnyDecimalPlugin extends Plugin {
 
     updateCleanViewClass() {
         if (this.settings.cleanViewEnabled) {
-            document.body.classList.add("jd-clean-view-active");
+            activeDocument.body.classList.add("jd-clean-view-active");
             if (this.ribbonToggleEl) setIcon(this.ribbonToggleEl, 'eye-off');
         } else {
-            document.body.classList.remove("jd-clean-view-active");
+            activeDocument.body.classList.remove("jd-clean-view-active");
             if (this.ribbonToggleEl) setIcon(this.ribbonToggleEl, 'eye');
         }
     }
@@ -140,7 +141,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
                 for (const mutation of mutations) {
                     if (mutation.type === 'childList') {
                         mutation.addedNodes.forEach(node => {
-                            if (node instanceof HTMLElement) {
+                            if (node.instanceOf(HTMLElement)) {
                                 if (node.classList && (node.classList.contains('nav-folder-title-content') || node.classList.contains('nav-file-title-content'))) {
                                     this.processNode(node);
                                 }
@@ -156,7 +157,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
                 }
             });
 
-            this.observer.observe(document.body, { 
+            this.observer.observe(activeDocument.body, { 
                 childList: true, 
                 subtree: true,
                 characterData: true
@@ -164,7 +165,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
         }
 
         // Initial process
-        document.querySelectorAll('.nav-folder-title-content, .nav-file-title-content').forEach(n => this.processNode(n as HTMLElement));
+        activeDocument.querySelectorAll('.nav-folder-title-content, .nav-file-title-content').forEach(n => this.processNode(n as HTMLElement));
     }
 
     stopObserver() {
@@ -174,7 +175,7 @@ export default class JohnnyDecimalPlugin extends Plugin {
         }
 
         // Restore original text
-        document.querySelectorAll('[data-jd-processed="true"]').forEach(node => {
+        activeDocument.querySelectorAll('[data-jd-processed="true"]').forEach(node => {
             const originalText = node.getAttribute('data-jd-original-text');
             if (originalText) {
                 node.textContent = originalText;
@@ -234,12 +235,12 @@ export default class JohnnyDecimalPlugin extends Plugin {
             
             node.textContent = '';
             
-            const span = document.createElement('span');
+            const span = createSpan();
             span.classList.add('jd-prefix-mask');
             span.textContent = dynamicPrefix;
             
             node.appendChild(span);
-            node.appendChild(document.createTextNode(rest));
+            node.appendChild(activeDocument.createTextNode(rest));
         }
     }
 }
@@ -257,7 +258,7 @@ class JDSettingsTab extends PluginSettingTab {
 
         containerEl.empty();
         const infoEl = containerEl.createDiv({ cls: "jd-settings-info setting-item-description" });
-        infoEl.createEl("p", { text: "Johnny.Decimal gives everything a permanent address by breaking your structure into 10 areas, and each area into 10 categories." });
+        infoEl.createEl("p", { text: "Johnny.decimal gives everything a permanent address by breaking your structure into 10 areas, and each area into 10 categories." });
 
         const listEl = infoEl.createEl("ul");
         listEl.createEl("li", { text: "Area 10-19: finance" });
@@ -266,7 +267,7 @@ class JDSettingsTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Clean view')
-            .setDesc('Visually hide the JD prefix in the file explorer.')
+            .setDesc('Visually hide the jd prefix in the file explorer.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.cleanViewEnabled)
                 .onChange(async (value) => {
@@ -297,8 +298,8 @@ class JDSettingsTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Replace native "New folder" button')
-            .setDesc('Diverts the default Obsidian file explorer "New folder" button to open the Johnny.Decimal creation modal instead.')
+            .setName('Replace native "new folder" button')
+            .setDesc('Diverts the default Obsidian file explorer "new folder" button to open the johnny.decimal creation modal instead.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.replaceNativeNewFolder)
                 .onChange(async (value) => {

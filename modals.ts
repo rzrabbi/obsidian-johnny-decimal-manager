@@ -3,8 +3,8 @@ import { parseJD, ParsedJD, createJDItem, getAreaPrefix, findAreaFolder, findCat
 import type JohnnyDecimalPlugin from "./main";
 
 function showError(msg: string) {
-    const frag = document.createDocumentFragment();
-    frag.createEl('span', { text: msg, cls: 'jd-error-notice' });
+    const frag = createFragment();
+    frag.createSpan({ text: msg, cls: 'jd-error-notice' });
     new Notice(frag);
 }
 
@@ -25,7 +25,7 @@ export class JDItemModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
         
-        contentEl.createEl("h2", { text: "Create new Johnny.Decimal item" });
+        contentEl.createEl("h2", { text: "Create new johnny.decimal item" });
 
         new Setting(contentEl)
             .setName("Type")
@@ -37,9 +37,9 @@ export class JDItemModal extends Modal {
                     this.itemType = value as 'folder' | 'file';
                 }));
 
-        const jdNameFrag = document.createDocumentFragment();
+        const jdNameFrag = createFragment();
         jdNameFrag.appendText("JD number ");
-        const jdHelpSpan = jdNameFrag.createEl("span", { cls: "jd-help-icon" });
+        const jdHelpSpan = jdNameFrag.createSpan({ cls: "jd-help-icon" });
         setIcon(jdHelpSpan, "help-circle");
         const jdHelpText = "The Johnny.Decimal number.\nFormat: Area (10-19), Category (11), or Item (11.01).\nExample: 11.01";
         jdHelpSpan.setAttribute("aria-label", jdHelpText);
@@ -48,15 +48,15 @@ export class JDItemModal extends Modal {
         new Setting(contentEl)
             .setName(jdNameFrag)
             .addText(text => text
-                .setPlaceholder("Enter JD number")
+                .setPlaceholder("Enter jd number")
                 .setValue(this.jdId)
                 .onChange(value => {
                     this.jdId = value.trim();
                 }));
 
-        const nameFrag = document.createDocumentFragment();
+        const nameFrag = createFragment();
         nameFrag.appendText("Name ");
-        const nameHelpSpan = nameFrag.createEl("span", { cls: "jd-help-icon" });
+        const nameHelpSpan = nameFrag.createSpan({ cls: "jd-help-icon" });
         setIcon(nameHelpSpan, "help-circle");
         const nameHelpText = "The human-readable name of the item.\nFormat: any valid folder or file name.\nExample: tax returns 2024";
         nameHelpSpan.setAttribute("aria-label", nameHelpText);
