@@ -87,20 +87,12 @@ _If parent folders are missing, a secondary modal will elegantly ask you to name
 
 ### Option 2: Community Plugin Directory (Web)
 
-1. Visit the Obsidian Community Plugins directory:  
-   https://community.obsidian.md/
+1. Open:  
+   https://community.obsidian.md/plugins/johnny-decimal-manager
 
-2. Search for **Johnny.Decimal Manager**.
-
-3. Click the **Add to Obsidian** button.
-
-4. Obsidian will open automatically. Click **Install**, then enable the plugin.
-
-**Direct Link:**  
-You can also open the plugin page directly:  
-https://community.obsidian.md/plugins/johnny-decimal-manager
-
-Then click **Add to Obsidian** and install the plugin from within Obsidian.
+2. Click **Add to Obsidian**.
+3. Obsidian will open automatically.
+4. Install and enable the plugin.
 
 ### Option 3: Obsidian BRAT
 
