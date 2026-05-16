@@ -2,7 +2,8 @@
 
 **Johnny.Decimal Manager** is a powerful, non-destructive Obsidian plugin designed to automate and enforce the standard Johnny.Decimal classification system within your vault.
 
-Organize your second brain flawlessly without the friction of manually managing parent folders or dealing with visual clutter.
+[![Downloads](https://img.shields.io/badge/dynamic/json?color=7C3AED&label=Downloads&query=%24%5B%22johnny-decimal-manager%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)](https://community.obsidian.md/plugins/johnny-decimal-manager)
+[![Version](https://img.shields.io/github/v/release/rzrabbi/obsidian-johnny-decimal-manager)](https://github.com/rzrabbi/obsidian-johnny-decimal-manager/releases/latest)
 
 ## 🧠 Why Johnny.Decimal?
 
@@ -77,23 +78,41 @@ _If parent folders are missing, a secondary modal will elegantly ask you to name
 
 ## 📦 Installation
 
-<!-- ### Option 1: Community plugins
+### Option 1: Community Plugins (Inside Obsidian)
 
-1.  Open Obsidian Settings.
-2.  Go to Community plugins and browse for "Johnny.Decimal Manager".
-3.  Install and enable the plugin. -->
+1. Open **Obsidian Settings**.
+2. Go to **Community plugins**.
+3. Search for **Johnny.Decimal Manager**.
+4. Click **Install** and enable the plugin.
 
-### Option 1: Obsidian BRAT
+### Option 2: Community Plugin Directory (Web)
 
-1.  Install the [BRAT](https://github.com/TfTHacker/obsidian42-brat) plugin.
-2.  Open BRAT settings, click "Add Beta plugin".
-3.  Enter the repository URL: `rzrabbi/obsidian-johnny-decimal-manager`.
+1. Visit the Obsidian Community Plugins directory:  
+   https://community.obsidian.md/
 
-### Option 2: Manual Installation
+2. Search for **Johnny.Decimal Manager**.
 
-1.  Download `main.js`, `manifest.json`, and `styles.css` from the [Releases](https://github.com/rzrabbi/obsidian-johnny-decimal-manager/releases) page.
-2.  Place them in your vault's `.obsidian/plugins/johnny-decimal-manager/` directory.
-3.  Reload Obsidian and enable.
+3. Click the **Add to Obsidian** button.
+
+4. Obsidian will open automatically. Click **Install**, then enable the plugin.
+
+**Direct Link:**  
+You can also open the plugin page directly:  
+https://community.obsidian.md/plugins/johnny-decimal-manager
+
+Then click **Add to Obsidian** and install the plugin from within Obsidian.
+
+### Option 3: Obsidian BRAT
+
+1. Install the [BRAT](https://github.com/TfTHacker/obsidian42-brat) plugin.
+2. Open BRAT settings and click **Add Beta plugin**.
+3. Enter the repository URL: `rzrabbi/obsidian-johnny-decimal-manager`.
+
+### Option 4: Manual Installation
+
+1. Download `main.js`, `manifest.json`, and `styles.css` from the [Releases](https://github.com/rzrabbi/obsidian-johnny-decimal-manager/releases) page.
+2. Place them inside your vault's `.obsidian/plugins/johnny-decimal-manager/` directory.
+3. Reload Obsidian and enable the plugin.
 
 ## 🤝 Contributing
 
